@@ -1,24 +1,25 @@
 const Web3 = require('web3');
 const fs = require('fs');
-const faker = require('faker');
 const {
   titleDeployingContractAddress,
   getRandomCountry,
   getRandomInt,
-  getRandomAccountAddress
+  getRandomAccountAddress,
+  getRandomIndices,
+  selectRandomPercentage
 } = require('./helpers');
 const titleCreatingContractBuild = require('../propty/contracts/build/contracts/TitleCreatingContract.json');
-
-const getRandomCity = () => faker.address.city();
-const getRandomStreet = () => faker.address.streetName();
+const propertyTitleBuild = require('../propty/contracts/build/contracts/PropertyTitle.json');
 
 const web3 = new Web3(Web3.givenProvider || 'http://localhost:8446');
 const titlesContract = new web3.eth.Contract(titleCreatingContractBuild.abi, titleDeployingContractAddress)
 
 const account = '0xB22965A60e0482fd1995415B7Fd90bC367F18b7D';
-const numberOfContracts = 2;
 const results = [];
-const fileToSave = 'results.json';
+const fileToSave = 'propertyValidationResults.json';
+const percentageOfPendingContractsToValidate = 100;
+const ownedContractState = 1;
+const providedString = 'Provided';
 
 const getAverageBlockTime = async (numBlocks = 10) => {
   const latestBlock = await web3.eth.getBlock('latest');
@@ -32,38 +33,28 @@ const getAverageBlockTime = async (numBlocks = 10) => {
     blockTimes.push(timeDifference);
   }
 
-  const sum = blockTimes.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  const sum = blockTimes.reduce((a, b) => a + b, 0);
   return sum / blockTimes.length;
 };
 
 (async () => {
   try {
+    const pendingTitleContracts = await titlesContract.methods.getPendingContracts().call();
+    const toBeValidatedContracts = selectRandomPercentage(pendingTitleContracts, percentageOfPendingContractsToValidate);
     const gasPrice = await web3.eth.getGasPrice();
 
-    for (let i = 0; i < numberOfContracts; i++) {
+    for (let i = 0; i < toBeValidatedContracts.length; i++) {
       const startTime = Date.now();
       const averageBlockTime = await getAverageBlockTime();
-      const country = getRandomCountry();
-      const city = getRandomCity();
-      const street = getRandomStreet();
-      const streetNumber = Math.floor(Math.random() * 100);
-      const apartmentNumberToDeploy = Math.floor(Math.random() * 1000);
-      const squareMeters = Math.floor(Math.random() * 200);
-      const sellingPriceIntegralPart = Math.floor(Math.random() * 1000).toString();
-      const sellingPriceFractionalPart = Math.floor(Math.random().toFixed(3) * 1000).toString();
-      const sellingPriceFractionalPartLength = sellingPriceFractionalPart.length;
-
-      const tx = titlesContract.methods.deployNewPropertyTitle(
-        getRandomAccountAddress(),
-        country,
-        city,
-        street,
-        streetNumber,
-        apartmentNumberToDeploy,
-        squareMeters,
-        sellingPriceIntegralPart,
-        sellingPriceFractionalPart,
-        sellingPriceFractionalPartLength
+      
+      const contract = new web3.eth.Contract(propertyTitleBuild.abi, toBeValidatedContracts[i])
+      const tx = contract.methods.setRequiredDocumentsStateAndContractState(
+        providedString,
+        providedString,
+        providedString,
+        providedString,
+        providedString,
+        ownedContractState
       ).send({ from: account, gasPrice });
 
       const transaction = await tx;
@@ -82,7 +73,7 @@ const getAverageBlockTime = async (numBlocks = 10) => {
         blockSize
       });
     
-      console.log(`Contract ${i + 1} deployed.`);
+      console.log(`Contract ${i + 1} validated.`);
     
       fs.writeFileSync(fileToSave, JSON.stringify(results));
       console.log(`Results saved to ${fileToSave}`);
