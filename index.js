@@ -16,7 +16,7 @@ const web3 = new Web3(Web3.givenProvider || 'http://localhost:8446');
 const titlesContract = new web3.eth.Contract(titleCreatingContractBuild.abi, titleDeployingContractAddress)
 
 const account = '0xB22965A60e0482fd1995415B7Fd90bC367F18b7D';
-const numberOfContracts = 2;
+const numberOfContracts = 1;
 const results = [];
 const fileToSave = 'results.json';
 
@@ -70,7 +70,7 @@ const getAverageBlockTime = async (numBlocks = 10) => {
       const endTime = Date.now();
       const responseTime = (endTime - startTime) / 1000;
       const gasUsed = transaction.gasUsed;
-      const spentEther = web3.utils.fromWei(BigInt(gasUsed * gasPrice).toString(), 'ether');
+      const spentEther = Number(web3.utils.fromWei(BigInt(gasUsed * gasPrice).toString(), 'ether'));
       const blockNumber = transaction.blockNumber;
       const block = await web3.eth.getBlock(blockNumber);
       const blockSize = block.size;
