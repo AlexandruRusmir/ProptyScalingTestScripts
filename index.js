@@ -16,7 +16,7 @@ const web3 = new Web3(Web3.givenProvider || 'http://localhost:8446');
 const titlesContract = new web3.eth.Contract(titleCreatingContractBuild.abi, titleDeployingContractAddress)
 
 const account = '0xB22965A60e0482fd1995415B7Fd90bC367F18b7D';
-const numberOfContracts = 1;
+const numberOfContracts = 10_000;
 const results = [];
 const fileToSave = 'results.json';
 
@@ -39,54 +39,61 @@ const getAverageBlockTime = async (numBlocks = 10) => {
 (async () => {
   try {
     const gasPrice = await web3.eth.getGasPrice();
+    const batchSize = 100;
 
-    for (let i = 0; i < numberOfContracts; i++) {
-      const startTime = Date.now();
-      const averageBlockTime = await getAverageBlockTime();
-      const country = getRandomCountry();
-      const city = getRandomCity();
-      const street = getRandomStreet();
-      const streetNumber = Math.floor(Math.random() * 100);
-      const apartmentNumberToDeploy = Math.floor(Math.random() * 1000);
-      const squareMeters = Math.floor(Math.random() * 200);
-      const sellingPriceIntegralPart = Math.floor(Math.random() * 1000).toString();
-      const sellingPriceFractionalPart = Math.floor(Math.random().toFixed(3) * 1000).toString();
-      const sellingPriceFractionalPartLength = sellingPriceFractionalPart.length;
+    for (let batch = 0; batch < numberOfContracts; batch += batchSize) {
+      const contractPromises = Array.from({ length: batchSize }, async (_, i) => {
+        const index = batch + i;
+        const startTime = Date.now();
+        const averageBlockTime = await getAverageBlockTime();
+        const country = getRandomCountry();
+        const city = getRandomCity();
+        const street = getRandomStreet();
+        const streetNumber = Math.floor(Math.random() * 100);
+        const apartmentNumberToDeploy = Math.floor(Math.random() * 1000);
+        const squareMeters = Math.floor(Math.random() * 200);
+        const sellingPriceIntegralPart = Math.floor(Math.random() * 1000).toString();
+        const sellingPriceFractionalPart = Math.floor(Math.random().toFixed(3) * 1000).toString();
+        const sellingPriceFractionalPartLength = sellingPriceFractionalPart.length;
 
-      const tx = titlesContract.methods.deployNewPropertyTitle(
-        getRandomAccountAddress(),
-        country,
-        city,
-        street,
-        streetNumber,
-        apartmentNumberToDeploy,
-        squareMeters,
-        sellingPriceIntegralPart,
-        sellingPriceFractionalPart,
-        sellingPriceFractionalPartLength
-      ).send({ from: account, gasPrice });
+        const tx = titlesContract.methods.deployNewPropertyTitle(
+          getRandomAccountAddress(),
+          country,
+          city,
+          street,
+          streetNumber,
+          apartmentNumberToDeploy,
+          squareMeters,
+          sellingPriceIntegralPart,
+          sellingPriceFractionalPart,
+          sellingPriceFractionalPartLength
+        ).send({ from: account, gasPrice });
 
-      const transaction = await tx;
-      const endTime = Date.now();
-      const responseTime = (endTime - startTime) / 1000;
-      const gasUsed = transaction.gasUsed;
-      const spentEther = Number(web3.utils.fromWei(BigInt(gasUsed * gasPrice).toString(), 'ether'));
-      const blockNumber = transaction.blockNumber;
-      const block = await web3.eth.getBlock(blockNumber);
-      const blockSize = block.size;
+        const transaction = await tx;
+        const endTime = Date.now();
+        const responseTime = (endTime - startTime) / 1000;
+        const gasUsed = transaction.gasUsed;
+        const spentEther = Number(web3.utils.fromWei(BigInt(gasUsed * gasPrice).toString(), 'ether'));
+        const blockNumber = transaction.blockNumber;
+        const block = await web3.eth.getBlock(blockNumber);
+        const blockSize = block.size;
     
-      results.push({
-        spentEther,
-        averageBlockTime,
-        responseTime,
-        blockSize
+        results.push({
+          spentEther,
+          averageBlockTime,
+          responseTime,
+          blockSize
+        });
+
+        console.log(`Contract ${index + 1} deployed.`);
       });
-    
-      console.log(`Contract ${i + 1} deployed.`);
-    
-      fs.writeFileSync(fileToSave, JSON.stringify(results));
-      console.log(`Results saved to ${fileToSave}`);
+
+      await Promise.all(contractPromises);
     }
+
+    fs.writeFileSync(fileToSave, JSON.stringify(results));
+    console.log(`Results saved to ${fileToSave}`);
+
   } catch (error) {
     console.error('Error:', error);
   }
