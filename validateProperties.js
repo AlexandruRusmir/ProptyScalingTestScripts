@@ -15,11 +15,17 @@ const web3 = new Web3(Web3.givenProvider || 'http://localhost:8446');
 const titlesContract = new web3.eth.Contract(titleCreatingContractBuild.abi, titleDeployingContractAddress)
 
 const account = '0xB22965A60e0482fd1995415B7Fd90bC367F18b7D';
-const results = [];
 const fileToSave = 'propertyValidationResults.json';
-const percentageOfPendingContractsToValidate = 100;
+const percentageOfPendingContractsToValidate = 80;
 const ownedContractState = 1;
 const providedString = 'Provided';
+
+let results;
+try {
+  results = JSON.parse(fs.readFileSync(fileToSave));
+} catch (error) {
+  results = [];
+}
 
 const getAverageBlockTime = async (numBlocks = 10) => {
   const latestBlock = await web3.eth.getBlock('latest');
@@ -42,42 +48,47 @@ const getAverageBlockTime = async (numBlocks = 10) => {
     const pendingTitleContracts = await titlesContract.methods.getPendingContracts().call();
     const toBeValidatedContracts = selectRandomPercentage(pendingTitleContracts, percentageOfPendingContractsToValidate);
     const gasPrice = await web3.eth.getGasPrice();
+    const batchSize = 100;
 
-    for (let i = 0; i < toBeValidatedContracts.length; i++) {
-      const startTime = Date.now();
-      const averageBlockTime = await getAverageBlockTime();
+    for (let batch = 0; batch < toBeValidatedContracts.length; batch += batchSize) {
+      const contractPromises = Array.from({ length: batchSize }, async (_, i) => {
+        const index = batch + i;
+        const startTime = Date.now();
+        const averageBlockTime = await getAverageBlockTime();
       
-      const contract = new web3.eth.Contract(propertyTitleBuild.abi, toBeValidatedContracts[i])
-      const tx = contract.methods.setRequiredDocumentsStateAndContractState(
-        providedString,
-        providedString,
-        providedString,
-        providedString,
-        providedString,
-        ownedContractState
-      ).send({ from: account, gasPrice });
+        const contract = new web3.eth.Contract(propertyTitleBuild.abi, toBeValidatedContracts[index]);
+        const tx = contract.methods.setRequiredDocumentsStateAndContractState(
+          providedString,
+          providedString,
+          providedString,
+          providedString,
+          providedString,
+          ownedContractState
+        ).send({ from: account, gasPrice });
 
-      const transaction = await tx;
-      const endTime = Date.now();
-      const responseTime = (endTime - startTime) / 1000;
-      const gasUsed = transaction.gasUsed;
-      const spentEther = web3.utils.fromWei(BigInt(gasUsed * gasPrice).toString(), 'ether');
-      const blockNumber = transaction.blockNumber;
-      const block = await web3.eth.getBlock(blockNumber);
-      const blockSize = block.size;
+        const transaction = await tx;
+        const endTime = Date.now();
+        const responseTime = (endTime - startTime) / 1000;
+        const gasUsed = transaction.gasUsed;
+        const spentEther = Number(web3.utils.fromWei(BigInt(gasUsed * gasPrice).toString(), 'ether'));
+        const blockNumber = transaction.blockNumber;
+        const block = await web3.eth.getBlock(blockNumber);
+        const blockSize = block.size;
     
-      results.push({
-        spentEther,
-        averageBlockTime,
-        responseTime,
-        blockSize
+        results.push({
+          spentEther,
+          averageBlockTime,
+          responseTime,
+          blockSize
+        });
+    
+        console.log(`Contract ${index + 1} validated.`);
       });
-    
-      console.log(`Contract ${i + 1} validated.`);
-    
-      fs.writeFileSync(fileToSave, JSON.stringify(results));
-      console.log(`Results saved to ${fileToSave}`);
+      await Promise.all(contractPromises);
     }
+    
+    fs.writeFileSync(fileToSave, JSON.stringify(results));
+    console.log(`Results saved to ${fileToSave}`);
   } catch (error) {
     console.error('Error:', error);
   }

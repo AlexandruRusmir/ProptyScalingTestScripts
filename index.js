@@ -5,7 +5,8 @@ const {
   titleDeployingContractAddress,
   getRandomCountry,
   getRandomInt,
-  getRandomAccountAddress
+  getRandomAccountAddress,
+  randomCapitalLetterIn40PercentOfCases
 } = require('./helpers');
 const titleCreatingContractBuild = require('../propty/contracts/build/contracts/TitleCreatingContract.json');
 
@@ -16,7 +17,7 @@ const web3 = new Web3(Web3.givenProvider || 'http://localhost:8446');
 const titlesContract = new web3.eth.Contract(titleCreatingContractBuild.abi, titleDeployingContractAddress)
 
 const account = '0xB22965A60e0482fd1995415B7Fd90bC367F18b7D';
-const numberOfContracts = 10_000;
+const numberOfContracts = 100;
 const results = [];
 const fileToSave = 'results.json';
 
@@ -49,7 +50,7 @@ const getAverageBlockTime = async (numBlocks = 10) => {
         const country = getRandomCountry();
         const city = getRandomCity();
         const street = getRandomStreet();
-        const streetNumber = Math.floor(Math.random() * 100);
+        const streetNumber = Math.floor(Math.random() * 100).toString() + randomCapitalLetterIn40PercentOfCases();
         const apartmentNumberToDeploy = Math.floor(Math.random() * 1000);
         const squareMeters = Math.floor(Math.random() * 200);
         const sellingPriceIntegralPart = Math.floor(Math.random() * 1000).toString();

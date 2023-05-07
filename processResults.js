@@ -1,8 +1,14 @@
 const fs = require('fs');
 
-const fileToWriteTo = 'metrics.json';
+const DEPLOY_RESULTS_FILE_PATH = './results.json';
+const VALIDATION_RESULTS_FILE_PATH = './propertyValidationResults.json';
+const DEPLOY_RESULTS_METRICS_FILE = 'statistics.json';
+const VALIDATION_RESULTS_METRICE_FILE = 'propertyValidationStatistics.json';
 
-fs.readFile('./results.json', 'utf8', (err, jsonString) => {
+const fileToReadFromPath = VALIDATION_RESULTS_FILE_PATH;
+const fileToWriteTo = VALIDATION_RESULTS_METRICE_FILE;
+
+fs.readFile(fileToReadFromPath, 'utf8', (err, jsonString) => {
     if (err) {
         console.log('Error reading file:', err);
         return;

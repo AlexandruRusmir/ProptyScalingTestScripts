@@ -1,0 +1,26 @@
+{
+  "spentEther": {
+    "average": 0.002132744319999998,
+    "min": 0.002112891,
+    "max": 0.002149903,
+    "median": 0.002132827
+  },
+  "averageBlockTime": {
+    "average": 7.820000000000067,
+    "min": 3.8,
+    "max": 9.7,
+    "median": 8.4
+  },
+  "responseTime": {
+    "average": 34.39751400000001,
+    "min": 4.178,
+    "max": 99.286,
+    "median": 28.837
+  },
+  "blockSize": {
+    "average": 10027.312,
+    "min": 1924,
+    "max": 10193,
+    "median": 10193
+  }
+}
