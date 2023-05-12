@@ -17,7 +17,7 @@ const web3 = new Web3(Web3.givenProvider || 'http://localhost:8446');
 const titlesContract = new web3.eth.Contract(titleCreatingContractBuild.abi, titleDeployingContractAddress)
 
 const account = '0xB22965A60e0482fd1995415B7Fd90bC367F18b7D';
-const numberOfContracts = 100;
+const numberOfContracts = 1000;
 const results = [];
 const fileToSave = 'results.json';
 

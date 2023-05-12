@@ -3,10 +3,10 @@ const fs = require('fs');
 const DEPLOY_RESULTS_FILE_PATH = './results.json';
 const VALIDATION_RESULTS_FILE_PATH = './propertyValidationResults.json';
 const DEPLOY_RESULTS_METRICS_FILE = 'statistics.json';
-const VALIDATION_RESULTS_METRICE_FILE = 'propertyValidationStatistics.json';
+const VALIDATION_RESULTS_METRICS_FILE = 'propertyValidationStatistics.json';
 
 const fileToReadFromPath = VALIDATION_RESULTS_FILE_PATH;
-const fileToWriteTo = VALIDATION_RESULTS_METRICE_FILE;
+const fileToWriteTo = VALIDATION_RESULTS_METRICS_FILE;
 
 fs.readFile(fileToReadFromPath, 'utf8', (err, jsonString) => {
     if (err) {
@@ -47,11 +47,16 @@ fs.readFile(fileToReadFromPath, 'utf8', (err, jsonString) => {
                         ? (fieldValues[field][mid - 1] + fieldValues[field][mid]) / 2
                         : fieldValues[field][mid];
 
+            const mean = fieldSums[field] / numEntries;
+            const variance = fieldValues[field].reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / numEntries;
+            const standardDeviation = Math.sqrt(variance);
+
             result[field] = {
-                average: fieldSums[field] / numEntries,
+                average: mean,
                 min: fieldMins[field],
                 max: fieldMaxs[field],
-                median: median
+                median: median,
+                standardDeviation: standardDeviation
             };
         }
 

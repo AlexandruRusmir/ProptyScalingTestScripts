@@ -16,7 +16,7 @@ const titlesContract = new web3.eth.Contract(titleCreatingContractBuild.abi, tit
 
 const account = '0xB22965A60e0482fd1995415B7Fd90bC367F18b7D';
 const fileToSave = 'propertyValidationResults.json';
-const percentageOfPendingContractsToValidate = 80;
+const percentageOfPendingContractsToValidate = 90;
 const ownedContractState = 1;
 const providedString = 'Provided';
 
@@ -53,6 +53,11 @@ const getAverageBlockTime = async (numBlocks = 10) => {
     for (let batch = 0; batch < toBeValidatedContracts.length; batch += batchSize) {
       const contractPromises = Array.from({ length: batchSize }, async (_, i) => {
         const index = batch + i;
+
+        if (!toBeValidatedContracts[index]) {
+          return;
+        }
+
         const startTime = Date.now();
         const averageBlockTime = await getAverageBlockTime();
       

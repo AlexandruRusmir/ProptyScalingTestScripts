@@ -1,26 +1,30 @@
 {
   "spentEther": {
-    "average": 0.002132744319999998,
+    "average": 0.0021327495320000007,
     "min": 0.002112891,
-    "max": 0.002149903,
-    "median": 0.002132827
+    "max": 0.002149867,
+    "median": 0.002132827,
+    "standardDeviation": 0.0000015059832791156753
   },
   "averageBlockTime": {
-    "average": 7.820000000000067,
-    "min": 3.8,
-    "max": 9.7,
-    "median": 8.4
+    "average": 8.600000000000104,
+    "min": 4.4,
+    "max": 15.3,
+    "median": 8.85,
+    "standardDeviation": 3.0449958949069225
   },
   "responseTime": {
-    "average": 34.39751400000001,
-    "min": 4.178,
-    "max": 99.286,
-    "median": 28.837
+    "average": 40.26549799999985,
+    "min": 3.329,
+    "max": 128.471,
+    "median": 37.866,
+    "standardDeviation": 22.97921481199903
   },
   "blockSize": {
-    "average": 10027.312,
+    "average": 10027.368,
     "min": 1924,
     "max": 10193,
-    "median": 10193
+    "median": 10193,
+    "standardDeviation": 1157.624141323952
   }
 }
