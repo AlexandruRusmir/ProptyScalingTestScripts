@@ -42,6 +42,10 @@ fs.readFile(fileToReadFromPath, 'utf8', (err, jsonString) => {
         console.log(`Total number of processed inputs: ${numEntries}`);
         for (const field in fieldSums) {
             fieldValues[field].sort((a, b) => a - b);
+
+            const Q1 = fieldValues[field][Math.ceil((fieldValues[field].length / 4)) - 1];
+            const Q3 = fieldValues[field][Math.ceil((fieldValues[field].length * 3 / 4)) - 1];
+
             const mid = Math.floor(fieldValues[field].length / 2);
             const median = fieldValues[field].length % 2 === 0
                         ? (fieldValues[field][mid - 1] + fieldValues[field][mid]) / 2
@@ -56,7 +60,9 @@ fs.readFile(fileToReadFromPath, 'utf8', (err, jsonString) => {
                 min: fieldMins[field],
                 max: fieldMaxs[field],
                 median: median,
-                standardDeviation: standardDeviation
+                standardDeviation: standardDeviation,
+                Q1: Q1,
+                Q3: Q3
             };
         }
 

@@ -4,27 +4,35 @@
     "min": 0.002112891,
     "max": 0.002149867,
     "median": 0.002132827,
-    "standardDeviation": 0.0000015059832791156753
+    "standardDeviation": 0.0000015059832791156753,
+    "Q1": 0.002132779,
+    "Q3": 0.002132875
   },
   "averageBlockTime": {
     "average": 8.600000000000104,
     "min": 4.4,
     "max": 15.3,
     "median": 8.85,
-    "standardDeviation": 3.0449958949069225
+    "standardDeviation": 3.0449958949069225,
+    "Q1": 5.8,
+    "Q3": 10
   },
   "responseTime": {
     "average": 40.26549799999985,
     "min": 3.329,
     "max": 128.471,
     "median": 37.866,
-    "standardDeviation": 22.97921481199903
+    "standardDeviation": 22.97921481199903,
+    "Q1": 18.797,
+    "Q3": 54.302
   },
   "blockSize": {
     "average": 10027.368,
     "min": 1924,
     "max": 10193,
     "median": 10193,
-    "standardDeviation": 1157.624141323952
+    "standardDeviation": 1157.624141323952,
+    "Q1": 10193,
+    "Q3": 10193
   }
 }
